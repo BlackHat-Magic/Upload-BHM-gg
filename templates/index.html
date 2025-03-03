@@ -6,20 +6,21 @@
 
 {% block body %}
 <div class="flex">
-    <form class="flex vertical start" method="post" x-data="main">
-        {{ "<h1>Create a {reason} Attachment</h1>".format(reason=reason) if reason else "" }}
+    <form class="flex vertical start" method="post" x-data="main" enctype="multipart/form-data">
+        {% if reason and reason != "misc" %}
+            <h1>Create a {{ reason.casefold().capitalize() }} Attachment</h1>
+        {% endif %}
         <label for="file"><h2>Upload a File</h2></label>
         <input
             type="file"
             id="file"
             name="file"
-            x-model="file"
-            @change="parse ()">
+            x-model="file">
 
         <a><button type="submit">Upload!</button></a>
         <div class="modal" x-show="modal" @click="modal = !modal"></div>
         <div class="modal-alert flex vertical start" x-show="modal">
-            <h1>Yout Files are Too Powerful!</h1>
+            <h1>Your Files are Too Powerful!</h1>
             <p>The maximum file size is 1 GiB</p>
             <a><button @click="modal = !modal" type="button">Gotcha!</button></a>
         </div>

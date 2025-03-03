@@ -1,6 +1,6 @@
 document.addEventListener("alpine:init", () => {
     Alpine.data("success", () => ({
-        fileUrl: "{{ file_url }}",
+        fileUrl: "",
         copied: false,
         copyToClipboard() {
             navigator.clipboard.writeText(this.fileUrl).then(() => {

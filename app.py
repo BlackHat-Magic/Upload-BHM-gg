@@ -1,3 +1,5 @@
+from botocore.client import Config
+from flask import Flask
 from dotenv import load_dotenv
 import os, boto3
 
@@ -8,6 +10,7 @@ S3_ENDPOINT_URL = os.getenv("S3_ENDPOINT_URL")
 S3_ACCESS_KEY_ID = os.getenv("S3_ACCESS_KEY_ID")
 S3_SECRET_KEY = os.getenv("S3_SECRET_KEY")
 S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
+S3_REGION_NAME = os.getenv("S3_REGION_NAME")
 
 def start():
     app = Flask(__name__)
@@ -17,13 +20,15 @@ def start():
 
     s3 = boto3.client(
         "s3",
+        region_name=S3_REGION_NAME,
         endpoint_url=S3_ENDPOINT_URL,
         aws_access_key_id=S3_ACCESS_KEY_ID,
-        aws_secret_access_key=S3_SECRET_ACCESS_KEY
+        aws_secret_access_key=S3_SECRET_KEY,
+        config=Config(signature_version="s3v4")
     )
     app.config["S3_CLIENT"] = s3
 
-    from website import site_main
+    from site_main import site_main
     # from .api_main import api_main
 
     app.register_blueprint(site_main, url_prefix="/")
