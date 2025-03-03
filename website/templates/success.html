@@ -1,0 +1,18 @@
+{% extends "master.html" %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='js/success.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex" x-data="success">
+    <div class="flex vertical start">
+        <h1>Upload Successful!</h1>
+        <p>Your file is available at:</p>
+        <input type="text" x-model="fileUrl" readonly class="url-display">
+        <button @click="copyToClipboard" class="copy-button">
+            <span x-text="copied ? 'Copied!' : 'Copy URL'"></span>
+        </button>
+    </div>
+</div>
+{% endblock %}

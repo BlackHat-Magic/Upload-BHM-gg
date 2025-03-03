@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie-edge">
+    <link rel="icon" type="image/x-ixon" href="{{ url_for('static', filename='images/d20.png') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/text.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/input.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/containers.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/markdown.css') }}">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">	
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+	<!-- <script src="https://unpkg.com/showdown/dist/showdown.min.js"></script> -->
+	<!-- <script src="https://unpkg.com/htmx.org@1.9.9"></script> -->
+	<script src="{{ url_for('static', filename='js/master.js') }}"></script>
+	<title>{{ title }} | Wayfarer {{ cruleset.name }}</title>
+	{% block head %}{% endblock %}
+</head>
+
+<body>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+	{% for category, message in messages %}
+		<div class="interior flex horizontal center {{ category }} bar" x-data="{ dismissed: false }" x-show="!dismissed">
+			<span style="width: calc(100% - 80px)">{{ message }}</span>
+			<a style="margin: 0" @click="dismissed = !dismissed">
+				<span>&times</span>
+			</a>
+		</div>
+	{% endfor %}
+{% endwith %}
+
+{% block body %}{% endblock %}
+
+<div class="flex" style="background-color: inherit">
+	<div class="flex horizontal center" style="background-color: inherit">
+		<span class="small">
+			<a href="https://github.com/BlackHat-Magic/Upload-BHM-gg" target="_blank">View Source Code</a></span>
+	</div>
+</div>
+</body>
+</html>
