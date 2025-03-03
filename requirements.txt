@@ -1,6 +1,6 @@
 blinker==1.9.0
-boto3==1.37.5
-botocore==1.37.5
+boto3==1.35.99
+botocore==1.35.99
 click==8.1.8
 Flask==3.1.0
 itsdangerous==2.2.0
@@ -9,7 +9,8 @@ jmespath==1.0.1
 MarkupSafe==3.0.2
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
-s3transfer==0.11.3
+python-magic==0.4.27
+s3transfer==0.10.4
 six==1.17.0
 urllib3==2.3.0
 Werkzeug==3.1.3
