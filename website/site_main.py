@@ -38,7 +38,7 @@ def home():
         name = secure_filename(file.filename)
         if(not name):
             name = "file"
-        unique_name = f"{reason}/{shortid()}.{namee}"
+        unique_name = f"{reason}/{shortid()}.{name}"
         
         try:
             current_app.config["S3_CLIENT"].upload_fileobj(file, current_app.config["S3_BUCKET_NAME"], unique_name)
