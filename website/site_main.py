@@ -1,24 +1,29 @@
 from flask import render_template, Blueprint, request, redirect, url_for, flash, current_app, abort
 from werkzeug.utils import secure_filename
-import random, boto3
+import random, boto3, urllib.parse, re
 
 site_main = Blueprint("site_main", __name__)
 
-def shortid(length):
+def shortid(length:int=8):
     characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-_"
     return("".join(random.choice(characters) for _ in range(length)))
 
 @site_main.route("/")
 def home():
     if(request.method == "POST"):
+        reason = secure_filename(reason)
+        if(not reason):
+            reason = "misc"
+        home_redirect = redirect(f"{url_for('site_main.success', file_id=unique_name)}" + (f"reason={reason}" if reason else ""))
+
         if("file" not in request.files):
             flash("No file selected", "red")
-            return(redirect(url_for("site_main.home")))
+            return(home_redirect)
             
         file = request.files["file"]
         if(file.filename == ""):
             flash("No file selected", "red")
-            return redirect(url_for("site_main.home"))
+            return(home_redirect)
         
         # Server-side size check
         file.seek(0, 2)  # Seek to end
@@ -27,27 +32,22 @@ def home():
         
         if(file_size > 1 * 1024 * 1024 * 1024):
             flash("File size exceeds 1 GiB", "red")
-            return(redirect(url_for("site_main.home")))
+            return(home_redirect)
         
         # Generate unique filename
-        original_name = secure_filename(file.filename)
-        unique_name = f"{original_name}-{shortid()}"
-        
-        # Upload to S3
-        s3 = boto3.client(
-            "s3",
-            endpoint_url=current_app.config["S3_ENDPOINT_URL"],
-            aws_access_key_id=current_app.config["AWS_ACCESS_KEY_ID"],
-            aws_secret_access_key=current_app.config["AWS_SECRET_ACCESS_KEY"]
-        )
+        name = secure_filename(file.filename)
+        if(not name):
+            name = "file"
+        unique_name = f"{reason}/{shortid()}.{namee}"
         
         try:
-            s3.upload_fileobj(file, current_app.config["S3_BUCKET_NAME"], unique_name)
+            current_app.config["S3_CLIENT"].upload_fileobj(file, current_app.config["S3_BUCKET_NAME"], unique_name)
         except Exception as e:
             flash("File upload failed", "red")
-            return(redirect(url_for("site_main.home")))
+            return(home_redirect)
             
-        return redirect(url_for("site_main.success", file_id=unique_name))
+        return redirect(home_redirect)
+
     reason = request.args.get("reason", None)
     return(render_template("index.html", title="Home", reason=reason))
 
@@ -59,17 +59,13 @@ def success():
     file_url = url_for("site_main.file", file_id=file_id, _external=True)
     return(render_template("success.html", file_url=file_url))
 
-@site_main.route("/file/<string:file_id>")
+@site_main.route("/f/<path:file_path>")
 def file(file_id):
-    s3 = boto3.client(
-        "s3",
-        endpoint_url=current_app.config["S3_ENDPOINT_URL"],
-        aws_access_key_id=current_app.config["AWS_ACCESS_KEY_ID"],
-        aws_secret_access_key=current_app.config["AWS_SECRET_ACCESS_KEY"]
-    )
+    file_path = urllib.parse.unquote(file_path)
+    s3_key = file_path
 
     try:
-        s3_obj = s3.get_object(
+        s3_obj = current_app.config["S3_CLIENT"].get_object(
             Bucket=current_app.config["S3_BUCKET_NAME"],
             Key=file_id
         )
@@ -77,16 +73,20 @@ def file(file_id):
         abort(404)
     except s3.exceptions.ClientError:
         abort(404)
+    except Exception as e:
+        print(f"Error retrieving file: {e}")
+        abort(404)
 
-    # Extract original filename from the stored key
-    original_filename = file_id.rsplit("-", 1)[0]
+    filename = os.path.basename(file_path)
+    og_filename_list = filename.split(".")
+    og_filename_list.pop(0)
+    og_filename = ".".join(s for s in og_filename_list)
 
     headers = {
         "Content-Type": s3_obj["ContentType"],
         "Content-Disposition": f"attachment; filename=\"{original_filename}\"",
         "Content-Length": str(s3_obj["ContentLength"])
     }
-
     return Response(
         s3_obj["Body"].iter_chunks(),
         headers=headers,
