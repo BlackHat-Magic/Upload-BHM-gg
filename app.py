@@ -11,6 +11,7 @@ S3_ACCESS_KEY_ID = os.getenv("S3_ACCESS_KEY_ID")
 S3_SECRET_KEY = os.getenv("S3_SECRET_KEY")
 S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
 S3_REGION_NAME = os.getenv("S3_REGION_NAME")
+SERVER_PORT = int(os.getenv("SERVER_PORT"))
 
 def start():
     app = Flask(__name__)
@@ -38,4 +39,4 @@ def start():
 app = start()
 
 if(__name__ == "__main__"):
-	app.run(host="0.0.0.0", debug=True)
+	app.run(host="0.0.0.0", port=SERVER_PORT, debug=False)
