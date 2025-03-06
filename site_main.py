@@ -75,7 +75,8 @@ def success(file_path):
     # file_id = request.args.get("file_id")
     # if(not name or not reason):
     #     return(redirect(url_for("site_main.home")))
-    file_url = url_for("site_main.file", file_path=file_path, _external=True)
+    # file_url = url_for("site_main.file", file_path=file_path, _external=True)
+    file_url = f"https://upload.bhm.gg/f/{file_path}"
     return(render_template("success.html", file_url=file_url))
 
 @site_main.route("/f/<path:file_path>")
